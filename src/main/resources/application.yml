@@ -1,0 +1,23 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: ms-order-service
+
+  data:
+    mongodb:
+      uri: "${MONGO_URI:mongodb+srv://mario:mario@cluster0.t4gtdev.mongodb.net/}"
+      database: order
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8079/eureka
+  instance:
+    preferIpAddress: true
+    hostname: ms-order-service
+
+api:
+  url:
+    ms-user-service: http://ms-user-service
+    ms-product-service: http://ms-product-service
