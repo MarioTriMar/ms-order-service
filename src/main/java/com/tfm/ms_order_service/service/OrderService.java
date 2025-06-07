@@ -7,6 +7,7 @@ import com.tfm.ms_order_service.service.restTemplate.UserRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,9 +24,13 @@ public class OrderService {
     @Autowired
     private ProductRestTemplate productRestTemplate;
 
+    @Autowired
+    KafkaTemplate<String, Order> kafkaTemplate;
+
     public ResponseEntity createOrder(OrderDTO orderDto) {
-        if(!userRestTemplate.existUser(orderDto.getUserId())){
-            return new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
+        UserOrder userOrder = userRestTemplate.existUser(orderDto.getUserId());
+        if(userOrder==null){
+            return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
         }
         ListProductResponse listProductResponse = productRestTemplate.productsAreOk(orderDto.getOrderProductDTO());
 
@@ -42,7 +47,7 @@ public class OrderService {
         }
 
         Order order = new Order();
-        order.setUserId(orderDto.getUserId());
+        order.setUser(userOrder);
         order.setCreationDate(System.currentTimeMillis());
         order.setDeliveryDir(orderDto.getDeliveryDir());
         order.setStatus("ORDINARY");
@@ -75,6 +80,7 @@ public class OrderService {
         if(optOrder.isEmpty()){
             return new ResponseEntity("Product not found", HttpStatus.NOT_FOUND);
         }
+        kafkaTemplate.send("email-service-topic", optOrder.get().getId(), optOrder.get());
         return new ResponseEntity<>(optOrder.get(),HttpStatus.OK);
     }
 

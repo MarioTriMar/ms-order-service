@@ -13,7 +13,7 @@ public class Order {
     @Id
     private String id;
     private double price;
-    private String userId;
+    private UserOrder user;
     private Long creationDate;
     private String deliveryDir;
     private List<OrderProduct> products;

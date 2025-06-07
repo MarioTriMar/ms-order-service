@@ -4,6 +4,19 @@ spring:
   application:
     name: ms-order-service
 
+  kafka:
+    producer:
+      bootstrap-servers:
+        - localhost:9092
+        - localhost:9094
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
   data:
     mongodb:
       uri: "${MONGO_URI:mongodb+srv://mario:mario@cluster0.t4gtdev.mongodb.net/}"
