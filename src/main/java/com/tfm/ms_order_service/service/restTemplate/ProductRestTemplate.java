@@ -20,7 +20,7 @@ public class ProductRestTemplate {
     @Autowired
     private RestTemplate restTemplate;
     @Value("${api.url.ms-product-service}")
-    private String msUserServiceUrl;
+    private String msProductServiceUrl;
     private Logger logger= LoggerFactory.getLogger(ProductRestTemplate.class);
 
 
@@ -29,7 +29,7 @@ public class ProductRestTemplate {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<List<OrderProductDTO>> request = new HttpEntity<>(orderProductDTO, headers);
-        String url = msUserServiceUrl + "/product/order";
+        String url = msProductServiceUrl + "/product/order";
         try {
             ResponseEntity<ListProductResponse> response = restTemplate.exchange(
                     url,

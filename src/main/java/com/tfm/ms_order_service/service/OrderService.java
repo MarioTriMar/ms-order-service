@@ -67,11 +67,9 @@ public class OrderService {
         order.setPrice(total);
 
         order = orderRepository.save(order);
+        kafkaTemplate.send("email-service-topic", order.getId(), order);
 
         return new ResponseEntity(order.getId()+ " created.", HttpStatus.CREATED);
-
-
-
 
     }
 
@@ -80,7 +78,6 @@ public class OrderService {
         if(optOrder.isEmpty()){
             return new ResponseEntity("Product not found", HttpStatus.NOT_FOUND);
         }
-        kafkaTemplate.send("email-service-topic", optOrder.get().getId(), optOrder.get());
         return new ResponseEntity<>(optOrder.get(),HttpStatus.OK);
     }
 
