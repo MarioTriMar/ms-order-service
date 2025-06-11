@@ -39,7 +39,15 @@ public class OrderController {
         if(user==null){
             return new ResponseEntity<>("Null user", HttpStatus.BAD_REQUEST);
         }
-        return orderService.getOrdersOfUser(user);
+        return new ResponseEntity<>(orderService.getOrdersOfUser(user), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{id}/expended")
+    public ResponseEntity getTotalExpendedByUser(@PathVariable String id){
+        if (id==null){
+            return new ResponseEntity<>("Null id", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(orderService.getTotalExpendedByUser(id), HttpStatus.OK);
     }
 
     private boolean isValid(OrderDTO order){

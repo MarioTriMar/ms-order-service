@@ -81,11 +81,21 @@ public class OrderService {
         return new ResponseEntity<>(optOrder.get(),HttpStatus.OK);
     }
 
-    public ResponseEntity getOrdersOfUser(String user) {
+    public List<Order> getOrdersOfUser(String user) {
         List<Order> orders = orderRepository.findByUserId(user);
+        return orders;
+    }
+
+    public double getTotalExpendedByUser(String id) {
+        List<Order> orders = getOrdersOfUser(id);
+        double total = 0;
         if(orders.isEmpty()){
-            return new ResponseEntity<>("No orders for user", HttpStatus.NOT_FOUND);
+            return total;
         }
-        return new ResponseEntity(orders, HttpStatus.OK);
+        for(Order order: orders){
+            total+=order.getPrice();
+        }
+        return total;
+
     }
 }
