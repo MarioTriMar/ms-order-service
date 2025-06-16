@@ -9,4 +9,6 @@ public class OrderDTO {
     private String userId;
     private List<OrderProductDTO> orderProductDTO;
     private String deliveryDir;
+    private boolean makeRecurrent;
+    private boolean recurrent;
 }

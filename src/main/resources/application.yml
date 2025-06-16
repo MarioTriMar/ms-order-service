@@ -32,5 +32,5 @@ eureka:
 
 api:
   url:
-    ms-user-service: http://ms-user-service
-    ms-product-service: http://ms-product-service
+    ms-user-service: lb://ms-user-service
+    ms-product-service: lb://ms-product-service

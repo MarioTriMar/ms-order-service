@@ -2,6 +2,7 @@ package com.tfm.ms_order_service.service;
 
 import com.tfm.ms_order_service.model.*;
 import com.tfm.ms_order_service.repository.OrderRepository;
+import com.tfm.ms_order_service.repository.RecurrentOrderRepository;
 import com.tfm.ms_order_service.service.restTemplate.ProductRestTemplate;
 import com.tfm.ms_order_service.service.restTemplate.UserRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private RecurrentOrderRepository recurrentOrderRepository;
     @Autowired
     private UserRestTemplate userRestTemplate;
     @Autowired
@@ -50,7 +53,7 @@ public class OrderService {
         order.setUser(userOrder);
         order.setCreationDate(System.currentTimeMillis());
         order.setDeliveryDir(orderDto.getDeliveryDir());
-        order.setStatus("ORDINARY");
+        order.setStatus(orderDto.isRecurrent() || orderDto.isMakeRecurrent() ? "RECURRENT" : "ORDINARY");
         List<OrderProduct> products = new ArrayList<>();
         double total = 0;
         for(ProductResponse productResponse: listProductResponse.getProductResponse()){
@@ -64,11 +67,18 @@ public class OrderService {
             total += orderProduct.getPrice() * orderProduct.getQuantity();
         }
         order.setProducts(products);
-        order.setPrice(total);
+        order.setPrice(Math.floor(total*100)/100.0);
 
         order = orderRepository.save(order);
         kafkaTemplate.send("email-service-topic", order.getId(), order);
-
+        if(orderDto.isMakeRecurrent()){
+            RecurrentOrder recurrentOrder = new RecurrentOrder();
+            recurrentOrder.setUser(order.getUser());
+            recurrentOrder.setLastOrder(order.getCreationDate());
+            recurrentOrder.setDeliveryDir(order.getDeliveryDir());
+            recurrentOrder.setProducts(orderDto.getOrderProductDTO());
+            recurrentOrderRepository.save(recurrentOrder);
+        }
         return new ResponseEntity(order.getId()+ " created.", HttpStatus.CREATED);
 
     }
