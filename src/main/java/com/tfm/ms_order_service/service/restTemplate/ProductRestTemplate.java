@@ -3,6 +3,8 @@ package com.tfm.ms_order_service.service.restTemplate;
 import com.tfm.ms_order_service.model.ListProductResponse;
 import com.tfm.ms_order_service.model.OrderProductDTO;
 import com.tfm.ms_order_service.model.ProductResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class ProductRestTemplate {
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
     @Value("${api.url.ms-product-service}")
     private String msProductServiceUrl;
     private Logger logger= LoggerFactory.getLogger(ProductRestTemplate.class);

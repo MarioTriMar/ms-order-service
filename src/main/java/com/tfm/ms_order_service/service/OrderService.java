@@ -27,9 +27,12 @@ public class OrderService {
     @Autowired
     private ProductRestTemplate productRestTemplate;
 
+    /*
     @Autowired
     KafkaTemplate<String, Order> kafkaTemplate;
 
+
+     */
     public ResponseEntity createOrder(OrderDTO orderDto) {
         UserOrder userOrder = userRestTemplate.existUser(orderDto.getUserId());
         if(userOrder==null){
@@ -70,7 +73,7 @@ public class OrderService {
         order.setPrice(Math.floor(total*100)/100.0);
 
         order = orderRepository.save(order);
-        kafkaTemplate.send("email-service-topic", order.getId(), order);
+        //kafkaTemplate.send("email-service-topic", order.getId(), order);
         if(orderDto.isMakeRecurrent()){
             RecurrentOrder recurrentOrder = new RecurrentOrder();
             recurrentOrder.setUser(order.getUser());

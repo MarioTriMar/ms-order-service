@@ -7,8 +7,7 @@ spring:
   kafka:
     producer:
       bootstrap-servers:
-        - localhost:9092
-        - localhost:9094
+        - kafka:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
@@ -25,12 +24,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8079/eureka
+      defaultZone: ${EUREKA_URL:http://localhost:8079/eureka}
   instance:
     preferIpAddress: true
     hostname: ms-order-service
 
 api:
   url:
-    ms-user-service: lb://ms-user-service
-    ms-product-service: lb://ms-product-service
+    ms-user-service: http://ms-user-service
+    ms-product-service: http://ms-product-service
