@@ -33,6 +33,7 @@ public class ProductRestTemplate {
 
         HttpEntity<List<OrderProductDTO>> request = new HttpEntity<>(orderProductDTO, headers);
         String url = msProductServiceUrl + "/product/order";
+        log.info("Call url: {}",url);
         try {
             ResponseEntity<ListProductResponse> response = restTemplate.exchange(
                     url,
@@ -40,6 +41,7 @@ public class ProductRestTemplate {
                     request,
                     ListProductResponse.class
             );
+            log.info("Response successful");
             return response.getBody();
         }catch (HttpClientErrorException e){
             logger.error("HttpClientErrorException");

@@ -5,6 +5,7 @@ import com.tfm.ms_order_service.repository.OrderRepository;
 import com.tfm.ms_order_service.repository.RecurrentOrderRepository;
 import com.tfm.ms_order_service.service.restTemplate.ProductRestTemplate;
 import com.tfm.ms_order_service.service.restTemplate.UserRestTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class OrderService {
 
     @Autowired
@@ -27,12 +29,12 @@ public class OrderService {
     @Autowired
     private ProductRestTemplate productRestTemplate;
 
-    /*
+
     @Autowired
     KafkaTemplate<String, Order> kafkaTemplate;
 
 
-     */
+
     public ResponseEntity createOrder(OrderDTO orderDto) {
         UserOrder userOrder = userRestTemplate.existUser(orderDto.getUserId());
         if(userOrder==null){
@@ -47,11 +49,12 @@ public class OrderService {
         for(ProductResponse productResponse: listProductResponse.getProductResponse()){
             if(!productResponse.isStockAllow())
                 productOutStocked.add(productResponse.getName());
+                log.info("Product without enough stock: [{}]",productResponse.getName());
         }
         if(!productOutStocked.isEmpty()){
             return new ResponseEntity<>(productOutStocked.toString() + " without enough stock.", HttpStatus.BAD_REQUEST);
         }
-
+        log.info("All products have enough stock");
         Order order = new Order();
         order.setUser(userOrder);
         order.setCreationDate(System.currentTimeMillis());
@@ -71,9 +74,10 @@ public class OrderService {
         }
         order.setProducts(products);
         order.setPrice(Math.floor(total*100)/100.0);
-
         order = orderRepository.save(order);
-        //kafkaTemplate.send("email-service-topic", order.getId(), order);
+        log.info("Order created: [{}]", order.toString());
+        kafkaTemplate.send("email-service-topic", order.getId(), order);
+        log.info("Event sent to email-service-topic");
         if(orderDto.isMakeRecurrent()){
             RecurrentOrder recurrentOrder = new RecurrentOrder();
             recurrentOrder.setUser(order.getUser());
@@ -81,6 +85,7 @@ public class OrderService {
             recurrentOrder.setDeliveryDir(order.getDeliveryDir());
             recurrentOrder.setProducts(orderDto.getOrderProductDTO());
             recurrentOrderRepository.save(recurrentOrder);
+            log.info("RecurrentOrder created");
         }
         return new ResponseEntity(order.getId()+ " created.", HttpStatus.CREATED);
 

@@ -20,8 +20,10 @@ public class UserRestTemplate {
 
     public UserOrder existUser(String id){
         String url = msUserServiceUrl + "/user/" + id + "/order";
+        log.info("Call url: {}", url);
         ResponseEntity<UserOrder> responseEntity = restTemplate.getForEntity(url, UserOrder.class);
         if(responseEntity.getStatusCode().is2xxSuccessful()){
+            log.info("Response successful");
             return responseEntity.getBody();
         }
         return null;
