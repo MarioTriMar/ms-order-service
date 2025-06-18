@@ -14,12 +14,6 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public KafkaAdmin kafkaAdmin() {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
-        return new KafkaAdmin(configs);
-    }
-    @Bean
     NewTopic createTopic(){
         return TopicBuilder.name("email-service-topic")
                 .partitions(1)
